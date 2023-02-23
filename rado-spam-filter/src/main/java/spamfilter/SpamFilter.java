@@ -5,24 +5,25 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public class SpamFilter {
-    public boolean isSpam(String context, String[] spamLinkDomains, int redirectionDepth){
+    private final static Logger LOG = Logger.getGlobal();
+
+    public boolean isSpam(String context, List<String> spamLinkDomains, int redirectionDepth){
         // 1. find url link from the context
         List<String> strings = parseUrlsFromText(context);
-        // 2. for 10 times parse urls or redirect urls (BFS)
-        String contentFromUrl = getContentFromUrl(strings.get(0));
-        List<String> urls2 = parseUrlsFromText(contentFromUrl);
-        for (String s : urls2) {System.out.println(s);}
+        // 2. for 10 times parse urls or redirect urls
+        SpamFilterJobManager spamFilterJobManager = new SpamFilterJobManager();
+        return spamFilterJobManager.searchSpam(strings, spamLinkDomains, redirectionDepth);
         // 3. if any of the urls contains string in spamLinkDomains return true
         // else return false
-        return false;
     }
 
     List<String> parseUrlsFromText(String text){
